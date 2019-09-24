@@ -81,10 +81,10 @@ dotnet restore
 dotnet build
 ```
 
-That's it. If you want to run the console test app, run it with:
+To train crew descriptors:
 ```
 cd src/DataCore.CLI
-dotnet run
+dotnet run train --noimages <path_to_datacore>
 ```
 
 ## Deployment
