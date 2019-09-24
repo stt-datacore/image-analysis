@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.2</TargetFramework>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows> 
+    <IsOSX Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::OSX)))' == 'true'">true</IsOSX> 
+    <IsLinux Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Linux)))' == 'true'">true</IsLinux> 
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
+    <PackageReference Include="OpenCvSharp4" Version="4.1.0.20190416">
+        <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+    <PackageReference Include="OpenCvSharp4.runtime.ubuntu.18.04-x64" Version="4.1.0.20190416" Condition="'$(IsLinux)'=='true'" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.1.0.20190416" Condition="'$(IsWindows)'=='true'">
+        <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+    <PackageReference Include="Tesseract" Version="3.3.0" />
+  </ItemGroup>
+
+</Project>
