@@ -24,5 +24,5 @@ steps:
 - task: SSH@0
   inputs:
     sshEndpoint: 'Azure VM datacore'
-    runOptions: 'script'
-    scriptPath: 'publish.sh'
+    runOptions: 'commands'
+    commands: './publish.sh'
