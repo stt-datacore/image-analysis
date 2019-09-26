@@ -25,4 +25,4 @@ steps:
   inputs:
     sshEndpoint: 'Azure VM datacore'
     runOptions: 'commands'
-    commands: './publish.sh'
+    commands: './datacore-bot/publish.sh'
