@@ -57,6 +57,10 @@ namespace DataCore.CLI
     [Verb("test", HelpText = "Run test code")]
     public class Test
     {
+        [Option('t', "type", Default = 0,
+            HelpText = "Type of test to run")]
+        public int TestType { get; set; }
+
         [Value(0, Required = true)]
         public string TestString { get; set; }
     }
@@ -156,32 +160,51 @@ namespace DataCore.CLI
 
         static int PerformTest(Test opts)
         {
-            var voyImage = new VoyImage(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
-
-            VoyImageResult result;
-
-            if (opts.TestString.StartsWith("http"))
+            if (opts.TestType == 0)
             {
-                result = voyImage.SearchUrl(opts.TestString);
+                var voyImage = new VoyImage(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
+
+                VoyImageResult result;
+
+                if (opts.TestString.StartsWith("http"))
+                {
+                    result = voyImage.SearchUrl(opts.TestString);
+                }
+                else
+                {
+                    result = voyImage.SearchImage(opts.TestString);
+                }
+
+                Console.WriteLine(result);
             }
-            else
+            else if (opts.TestType == 1)
             {
-                result = voyImage.SearchImage(opts.TestString);
+                var botHelper = new BotHelper("https://datacore.netlify.com/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
+                botHelper.ParseData();
+                var result = botHelper.BestCrew(opts.TestString, 0);
+                if (result.Count == 0)
+                {
+                    Console.WriteLine("Not found");
+                }
+                else
+                {
+                    Console.WriteLine(result[0].name);
+                }
             }
-
-            Console.WriteLine(result);
-
-            /*var botHelper = new BotHelper(System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
-            botHelper.ParseData();
-            var result = botHelper.BestCrew(opts.TestString, 0);
-            if (result.Count == 0)
+            else if (opts.TestType == 2)
             {
-                Console.WriteLine("Not found");
+                var botHelper = new BotHelper("https://datacore.netlify.com/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
+                botHelper.ParseData();
+                var result = botHelper.Gauntlet(opts.TestString.Split(' '));
+                if (result.Count == 0)
+                {
+                    Console.WriteLine("Not found");
+                }
+                else
+                {
+                    Console.WriteLine(string.Join(", ", result.Select(crew => crew.name)));
+                }
             }
-            else
-            {
-                Console.WriteLine(result[0].name);
-            }*/
 
             return 0;
         }

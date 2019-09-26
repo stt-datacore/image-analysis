@@ -28,6 +28,7 @@ using Discord;
 using Discord.WebSocket;
 
 using DataCore.Library;
+using System.Text;
 
 namespace DataCore.Daemon
 {
@@ -68,9 +69,9 @@ namespace DataCore.Daemon
             return defaultString;
         }
 
-        private static string FormatCrewStatsWithEmotes(SocketUserMessage message, CrewData crew, int raritySearch = 0)
+        private static string FormatCrewStatsWithEmotes(SocketUserMessage message, CrewData crew, int raritySearch = 0, bool forGauntlet = false)
         {
-            return string.Join(" ", CrewFormatter.FormatCrewStats(crew, true, raritySearch).Select(s => $"{s.Replace("^", " ")}"))
+            return string.Join(" ", CrewFormatter.FormatCrewStats(crew, true, raritySearch, forGauntlet).Select(s => $"{s.Replace("^", " ")}"))
                 .Replace("SCI", GetEmoteOrString(message, "sci", "SCI"))
                 .Replace("SEC", GetEmoteOrString(message, "sec", "SEC"))
                 .Replace("ENG", GetEmoteOrString(message, "eng", "ENG"))
@@ -289,6 +290,29 @@ namespace DataCore.Daemon
             }
         }
 
+        private async Task HandleMessageGauntlet(string searchString, SocketUserMessage message)
+        {
+            var inputs = searchString.Split(' ');
+            if ((inputs.Count() < 2) || (inputs.Count() > 3))
+            {
+                await message.Channel.SendMessageAsync($"The gauntlet command expects 3 traits as input; try something like **-d gauntlet borg resourceful interrogator** - check **-d help** for details");
+            }
+
+            var results = _botHelper.Gauntlet(inputs);
+            if ((results == null) || (results.Count == 0))
+            {
+                await message.Channel.SendMessageAsync($"Sorry, I couldn't run command 'gauntlet {searchString}'; try something like **-d gauntlet borg resourceful interrogator** - check **-d help** for details");
+            }
+            else
+            {
+                StringBuilder sbReply = new StringBuilder($"**Traits: {string.Join(", ", inputs)} ({results.Count} total)**");
+                sbReply.AppendLine("*45% or better 4 and 5 star crew:*");
+                sbReply.AppendLine(string.Join("\n", results.Take(10).Select(crew => (new string('⭐', crew.max_rarity) + $" {crew.name} - " + FormatCrewStatsWithEmotes(message, crew, 0, true)))));
+
+                await message.Channel.SendMessageAsync(sbReply.ToString());
+            }
+        }
+
         private async Task HandleMessageVoytime(string searchString, SocketUserMessage message, bool fromImage)
         {
             var inputs = searchString.Trim().Split(' ');
@@ -343,7 +367,9 @@ namespace DataCore.Daemon
 **-d farm <rarity> <name>** - will search for items of the given rarity (0 - 5) and name, and list out sources for it
 **-d best [base <skill>]|[gauntlet <skill1> <skill2>]|[voyage <skill1> <skill2>]** - finds the top 10 best crew with the specified skillset
 **-d voytime <primary> <secondary> <any skill> <any skill> <any skill> <any skill> [<antimmatter=2500>] - does a quick estimation of voyage length
-**-d dilemma [text]** - will search dilemmas for the given text");
+**-d dilemma [text]** - will search dilemmas for the given text
+**-d gauntlet <trait1> <trait2> <trait3>** - will give suggestions for crew to use in gauntlet that match at least 2 of the given traits
+");
         }
 
         private async Task HandleMessageBehold(string url, SocketUserMessage message, bool debug)
@@ -403,6 +429,10 @@ namespace DataCore.Daemon
                 else if (command.StartsWith("voytime "))
                 {
                     await HandleMessageVoytime(command.Substring(8), message, false);
+                }
+                else if (command.StartsWith("gauntlet "))
+                {
+                    await HandleMessageGauntlet(command.Substring(9), message);
                 }
                 else if (command.StartsWith("behold ") || command.StartsWith("voyimg "))
                 {

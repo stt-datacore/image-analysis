@@ -84,6 +84,12 @@ namespace DataCore.Tests
 
             bestCrewResults = botHelper.BestCrew("voyage cmd sci sec", 0);
             Assert.AreEqual(null, bestCrewResults);
+
+            var gauntletCrew = botHelper.Gauntlet(new string[] {"borg", "interrogator", "resourceful"});
+            Assert.AreNotEqual(0, gauntletCrew.Count);
+
+            gauntletCrew = botHelper.Gauntlet(new string[] {"jedi", "invalid", "bogus"});
+            Assert.AreEqual(0, gauntletCrew.Count);
         }
 
         [TestMethod]

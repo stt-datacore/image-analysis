@@ -36,6 +36,7 @@ namespace DataCore.Library
         private readonly object dataLock = new object();
         private string _mainpath;
         private string _datacoreURL;
+        private string[] _traits;
 
         public ItemData[] Items
         {
@@ -50,6 +51,14 @@ namespace DataCore.Library
             get
             {
                 return _quests;
+            }
+        }
+
+        public string[] Traits
+        {
+            get
+            {
+                return _traits;
             }
         }
 
@@ -90,6 +99,15 @@ namespace DataCore.Library
                 _quests = JsonConvert.DeserializeObject<QuestData[]>(File.ReadAllText(Path.Combine(_mainpath, "data", "quests.json")));
                 _dilemmas = JsonConvert.DeserializeObject<Dilemma[]>(File.ReadAllText(Path.Combine(_mainpath, "data", "dilemmas.json")));
             }
+
+            // TODO: call this only if the data actually changed
+            CalcCrewStats();
+        }
+
+        private void CalcCrewStats()
+        {
+            // Get a list of all unique trait names across all crew
+            _traits = _allcrew.SelectMany(crew => crew.traits_named).Distinct().ToArray();
         }
 
         public int TotalCrew()
@@ -310,6 +328,32 @@ namespace DataCore.Library
         public List<Dilemma> SearchDilemmas(string input)
         {
             return new List<Dilemma>(_dilemmas.Where(dilemma => Predicate(dilemma.title, input.Trim())));
+        }
+
+        public List<CrewData> Gauntlet(string[] inputs)
+        {
+            // First, check if the inputs even match known trait names
+            if (!_traits.Any(s => s.Equals(inputs[0], StringComparison.OrdinalIgnoreCase)) ||
+                !_traits.Any(s => s.Equals(inputs[1], StringComparison.OrdinalIgnoreCase)) ||
+                !_traits.Any(s => s.Equals(inputs[2], StringComparison.OrdinalIgnoreCase)))
+            {
+                // TODO: better error handling
+                return new List<CrewData>();
+            }
+
+            Predicate<CrewData> TraitSearch = (CrewData crew) =>
+            {
+                short hits = 0;
+                if (crew.traits_named.Any(s => s.Equals(inputs[0], StringComparison.OrdinalIgnoreCase)))
+                    hits++;
+                if (crew.traits_named.Any(s => s.Equals(inputs[1], StringComparison.OrdinalIgnoreCase)))
+                    hits++;
+                if (crew.traits_named.Any(s => s.Equals(inputs[2], StringComparison.OrdinalIgnoreCase)))
+                    hits++;
+                return hits > 1;
+            };
+
+            return new List<CrewData>(_allcrew.Where(crew => (crew.max_rarity > 3) && TraitSearch(crew)));
         }
     }
 }

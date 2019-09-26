@@ -23,55 +23,62 @@ namespace DataCore.Library
 {
     public static class CrewFormatter
     {
-        public static string FormatSkill(Skill skill, bool useSpace)
+        public static string FormatSkill(Skill skill, bool useSpace, bool forGauntlet = false)
         {
-            return $"{skill.core}{(useSpace ? " " : "^")}({skill.range_min}-{skill.range_max})";
+            if (forGauntlet)
+            {
+                return $"{(useSpace ? " " : "^")}({skill.range_min}-{skill.range_max})";
+            }
+            else
+            {
+                return $"{skill.core}{(useSpace ? " " : "^")}({skill.range_min}-{skill.range_max})";
+            }
         }
 
-        static List<string> FormatCrewStatsInternal(Skills skills, bool useSpace)
+        static List<string> FormatCrewStatsInternal(Skills skills, bool useSpace, bool forGauntlet = false)
         {
             List<string> result = new List<string>();
             if (skills.command_skill != null)
             {
-                result.Add($"CMD {FormatSkill(skills.command_skill, useSpace)}");
+                result.Add($"CMD {FormatSkill(skills.command_skill, useSpace, forGauntlet)}");
             }
 
             if (skills.science_skill != null)
             {
-                result.Add($"SCI {FormatSkill(skills.science_skill, useSpace)}");
+                result.Add($"SCI {FormatSkill(skills.science_skill, useSpace, forGauntlet)}");
             }
 
             if (skills.security_skill != null)
             {
-                result.Add($"SEC {FormatSkill(skills.security_skill, useSpace)}");
+                result.Add($"SEC {FormatSkill(skills.security_skill, useSpace, forGauntlet)}");
             }
 
             if (skills.engineering_skill != null)
             {
-                result.Add($"ENG {FormatSkill(skills.engineering_skill, useSpace)}");
+                result.Add($"ENG {FormatSkill(skills.engineering_skill, useSpace, forGauntlet)}");
             }
 
             if (skills.diplomacy_skill != null)
             {
-                result.Add($"DIP {FormatSkill(skills.diplomacy_skill, useSpace)}");
+                result.Add($"DIP {FormatSkill(skills.diplomacy_skill, useSpace, forGauntlet)}");
             }
 
             if (skills.medicine_skill != null)
             {
-                result.Add($"MED {FormatSkill(skills.medicine_skill, useSpace)}");
+                result.Add($"MED {FormatSkill(skills.medicine_skill, useSpace, forGauntlet)}");
             }
 
             return result;
         }
 
-        public static List<string> FormatCrewStats(CrewData crew, bool useSpace, int raritySearch = 0)
+        public static List<string> FormatCrewStats(CrewData crew, bool useSpace, int raritySearch = 0, bool forGauntlet = false)
         {
             var data = crew.skill_data.FirstOrDefault(sd => sd.rarity == raritySearch);
             if (data != null)
             {
-                return FormatCrewStatsInternal(data.base_skills, useSpace);
+                return FormatCrewStatsInternal(data.base_skills, useSpace, forGauntlet);
             }
-            return FormatCrewStatsInternal(crew.base_skills, useSpace);
+            return FormatCrewStatsInternal(crew.base_skills, useSpace, forGauntlet);
         }
 
         public static string FormatCrewCoolRanks(CrewData crew, bool orEmpty = false, string separator = ", ")

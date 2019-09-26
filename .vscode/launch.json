@@ -10,9 +10,9 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/src/DataCore.Daemon/bin/Debug/netcoreapp2.2/DataCore.Daemon.dll",
-            "args": [],
-            "cwd": "${workspaceFolder}/src/DataCore.Daemon",
+            "program": "${workspaceFolder}/src/DataCore.CLI/bin/Debug/netcoreapp2.2/DataCore.CLI.dll",
+            "args": ["test", "-t 2", "borg interrogator resourceful"],
+            "cwd": "${workspaceFolder}/src/DataCore.CLI",
             // For more information about the 'console' field, see https://github.com/OmniSharp/omnisharp-vscode/blob/master/debugger-launchjson.md#console-terminal-window
             "console": "integratedTerminal",
             "stopAtEntry": false
