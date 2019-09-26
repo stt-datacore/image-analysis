@@ -295,13 +295,13 @@ namespace DataCore.Daemon
             var inputs = searchString.ToLower().Split(',');
             if ((inputs.Count() < 2) || (inputs.Count() > 3))
             {
-                await message.Channel.SendMessageAsync($"The gauntlet command expects 3 traits as input; try something like **-d gauntlet borg resourceful interrogator** - check **-d help** for details");
+                await message.Channel.SendMessageAsync($"The gauntlet command expects 3 traits as input; try something like **-d gauntlet borg,resourceful,interrogator** - check **-d help** for details");
             }
 
             var results = _botHelper.Gauntlet(inputs);
             if ((results == null) || (results.Results.Count() == 0) || !string.IsNullOrEmpty(results.ErrorMessage))
             {
-                await message.Channel.SendMessageAsync($"Sorry, I couldn't run command 'gauntlet {searchString}' ({results.ErrorMessage}); try something like **-d gauntlet borg resourceful interrogator** - check **-d help** for details");
+                await message.Channel.SendMessageAsync($"Sorry, I couldn't run command 'gauntlet {searchString}' ({results.ErrorMessage}); try something like **-d gauntlet borg,resourceful,interrogator** - check **-d help** for details");
             }
             else
             {
