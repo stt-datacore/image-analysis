@@ -20,9 +20,3 @@ steps:
 #  displayName: 'Run test suite'
 #  inputs:
 #    command: 'test'
-
-- task: SSH@0
-  inputs:
-    sshEndpoint: 'Azure VM datacore'
-    runOptions: 'commands'
-    commands: './datacore-bot/publish.sh'
