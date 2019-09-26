@@ -305,8 +305,9 @@ namespace DataCore.Daemon
             }
             else
             {
-                StringBuilder sbReply = new StringBuilder($"**Traits: {string.Join(", ", inputs)} ({results.Count} total)**");
-                sbReply.AppendLine("*45% or better 4 and 5 star crew:*");
+                StringBuilder sbReply = new StringBuilder();
+                sbReply.AppendLine($"**Traits: {string.Join(", ", inputs)} ({results.Count} total)**");
+                sbReply.AppendLine("_45% or better 4 and 5 star crew:_");
                 sbReply.AppendLine(string.Join("\n", results.Take(10).Select(crew => (new string('⭐', crew.max_rarity) + $" {crew.name} - " + FormatCrewStatsWithEmotes(message, crew, 0, true)))));
 
                 await message.Channel.SendMessageAsync(sbReply.ToString());
