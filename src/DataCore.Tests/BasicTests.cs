@@ -86,10 +86,10 @@ namespace DataCore.Tests
             Assert.AreEqual(null, bestCrewResults);
 
             var gauntletCrew = botHelper.Gauntlet(new string[] {"borg", "interrogator", "resourceful"});
-            Assert.AreNotEqual(0, gauntletCrew.Count);
+            Assert.AreNotEqual(0, gauntletCrew.Results.Length);
 
             gauntletCrew = botHelper.Gauntlet(new string[] {"jedi", "invalid", "bogus"});
-            Assert.AreEqual(0, gauntletCrew.Count);
+            Assert.IsFalse(string.IsNullOrEmpty(gauntletCrew.ErrorMessage));
         }
 
         [TestMethod]

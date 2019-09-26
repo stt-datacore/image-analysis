@@ -27,6 +27,18 @@ using Newtonsoft.Json;
 
 namespace DataCore.Library
 {
+    public class GauntletResultEntry
+    {
+        public CrewData Crew;
+        public string[] MatchingTraits;
+    }
+
+    public class GauntletResult
+    {
+        public GauntletResultEntry[] Results;
+        public string ErrorMessage;
+    }
+
     public class BotHelper
     {
         private CrewData[] _allcrew;
@@ -330,30 +342,37 @@ namespace DataCore.Library
             return new List<Dilemma>(_dilemmas.Where(dilemma => Predicate(dilemma.title, input.Trim())));
         }
 
-        public List<CrewData> Gauntlet(string[] inputs)
+        public GauntletResult Gauntlet(string[] inputs)
         {
+            GauntletResult result = new GauntletResult();
             // First, check if the inputs even match known trait names
             if (!_traits.Any(s => s.Equals(inputs[0], StringComparison.OrdinalIgnoreCase)) ||
                 !_traits.Any(s => s.Equals(inputs[1], StringComparison.OrdinalIgnoreCase)) ||
                 !_traits.Any(s => s.Equals(inputs[2], StringComparison.OrdinalIgnoreCase)))
             {
-                // TODO: better error handling
-                return new List<CrewData>();
+                result.ErrorMessage = "Please check the trait spelling";
+                return result;
             }
 
-            Predicate<CrewData> TraitSearch = (CrewData crew) =>
+            Func<CrewData, string[]> TraitSearch = (CrewData crew) =>
             {
-                short hits = 0;
+                List<string> matching = new List<string>();
                 if (crew.traits_named.Any(s => s.Equals(inputs[0], StringComparison.OrdinalIgnoreCase)))
-                    hits++;
+                    matching.Add(inputs[0]);
                 if (crew.traits_named.Any(s => s.Equals(inputs[1], StringComparison.OrdinalIgnoreCase)))
-                    hits++;
+                    matching.Add(inputs[1]);
                 if (crew.traits_named.Any(s => s.Equals(inputs[2], StringComparison.OrdinalIgnoreCase)))
-                    hits++;
-                return hits > 1;
+                    matching.Add(inputs[2]);
+                return matching.ToArray();
             };
 
-            return new List<CrewData>(_allcrew.Where(crew => (crew.max_rarity > 3) && TraitSearch(crew)));
+            result.ErrorMessage = string.Empty;
+            result.Results = _allcrew.Where(crew => (crew.max_rarity > 3))
+                .Select(crew => new GauntletResultEntry { Crew = crew, MatchingTraits = TraitSearch(crew) })
+                .Where(entry => entry.MatchingTraits.Length > 1)
+                .ToArray();
+
+            return result;
         }
     }
 }

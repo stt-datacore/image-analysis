@@ -292,23 +292,23 @@ namespace DataCore.Daemon
 
         private async Task HandleMessageGauntlet(string searchString, SocketUserMessage message)
         {
-            var inputs = searchString.Split(' ');
+            var inputs = searchString.ToLower().Split(',');
             if ((inputs.Count() < 2) || (inputs.Count() > 3))
             {
                 await message.Channel.SendMessageAsync($"The gauntlet command expects 3 traits as input; try something like **-d gauntlet borg resourceful interrogator** - check **-d help** for details");
             }
 
             var results = _botHelper.Gauntlet(inputs);
-            if ((results == null) || (results.Count == 0))
+            if ((results == null) || (results.Results.Count() == 0) || !string.IsNullOrEmpty(results.ErrorMessage))
             {
-                await message.Channel.SendMessageAsync($"Sorry, I couldn't run command 'gauntlet {searchString}'; try something like **-d gauntlet borg resourceful interrogator** - check **-d help** for details");
+                await message.Channel.SendMessageAsync($"Sorry, I couldn't run command 'gauntlet {searchString}' ({results.ErrorMessage}); try something like **-d gauntlet borg resourceful interrogator** - check **-d help** for details");
             }
             else
             {
                 StringBuilder sbReply = new StringBuilder();
-                sbReply.AppendLine($"**Traits: {string.Join(", ", inputs)} ({results.Count} total)**");
+                sbReply.AppendLine($"**Traits: {string.Join(", ", inputs)} ({results.Results.Count()} total)**");
                 sbReply.AppendLine("_45% or better 4 and 5 star crew:_");
-                sbReply.AppendLine(string.Join("\n", results.Take(10).Select(crew => (new string('⭐', crew.max_rarity) + $" {crew.name} - " + FormatCrewStatsWithEmotes(message, crew, 0, true)))));
+                sbReply.AppendLine(string.Join("\n", results.Results.Take(10).Select(entry => (new string('⭐', entry.Crew.max_rarity) + $" {entry.Crew.name} [{string.Join(", ", entry.MatchingTraits)}] - " + FormatCrewStatsWithEmotes(message, entry.Crew, 0, true)))));
 
                 await message.Channel.SendMessageAsync(sbReply.ToString());
             }
@@ -369,7 +369,7 @@ namespace DataCore.Daemon
 **-d best [base <skill>]|[gauntlet <skill1> <skill2>]|[voyage <skill1> <skill2>]** - finds the top 10 best crew with the specified skillset
 **-d voytime <primary> <secondary> <any skill> <any skill> <any skill> <any skill> [<antimmatter=2500>] - does a quick estimation of voyage length
 **-d dilemma [text]** - will search dilemmas for the given text
-**-d gauntlet <trait1> <trait2> <trait3>** - will give suggestions for crew to use in gauntlet that match at least 2 of the given traits
+**-d gauntlet <trait1>,<trait2>,<trait3>** - will give suggestions for crew to use in gauntlet that match at least 2 of the given traits
 ");
         }
 

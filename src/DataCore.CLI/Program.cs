@@ -196,13 +196,13 @@ namespace DataCore.CLI
                 var botHelper = new BotHelper("https://datacore.netlify.com/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
                 botHelper.ParseData();
                 var result = botHelper.Gauntlet(opts.TestString.Split(' '));
-                if (result.Count == 0)
+                if (!string.IsNullOrEmpty(result.ErrorMessage) || result.Results.Count() == 0)
                 {
                     Console.WriteLine("Not found");
                 }
                 else
                 {
-                    Console.WriteLine(string.Join(", ", result.Select(crew => crew.name)));
+                    Console.WriteLine(string.Join(", ", result.Results.Select(gresult => $"{gresult.Crew.name} [{string.Join(", ", gresult.MatchingTraits)}]")));
                 }
             }
 
