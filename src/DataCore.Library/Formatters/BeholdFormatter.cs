@@ -33,7 +33,7 @@ namespace DataCore.Library
             if ((result.crew3.stars > 0) && (result.crew3.stars < crew[2].max_rarity)) starBest.Add(crew[2]);
             var theStarBest = starBest.OrderBy(c => c.bigbook_tier).ToList();
 
-            if (best[0].bigbook_tier > 9)
+            if (best[0].bigbook_tier > 7)
             {
                 if (theStarBest.Count > 0)
                 {
@@ -48,7 +48,7 @@ namespace DataCore.Library
             {
                 if ((theStarBest.Count > 0) && (theStarBest[0].name != best[0].name))
                 {
-                    if (theStarBest[0].bigbook_tier > 9)
+                    if (theStarBest[0].bigbook_tier > 7)
                     {
                         title = $"{best[0].name} is your best bet; star up the crappy {theStarBest[0].name} if you don't have any slots to spare";
                     }
@@ -79,14 +79,17 @@ namespace DataCore.Library
                             stars = result.crew3.stars;
                         }
 
-                        if (stars == best[0].max_rarity)
+                        bool allMaxed = (result.crew1.stars == best[0].max_rarity) && (result.crew2.stars == best[0].max_rarity) && (result.crew3.stars == best[0].max_rarity);
+
+                        if (!allMaxed && (stars == best[0].max_rarity))
                         {
-                            if (best[1].bigbook_tier < 8)
+                            if (best[1].bigbook_tier < 6)
                             {
                                 title = $"{best[1].name} is your best bet, unless you want to start another {best[0].name}";
                             }
                             else
                             {
+                                // TODO: if both best[0] and best[1] are FF-d
                                 title = $"It may be worth starting another {best[0].name}, pick {best[1].name} if you don't want dupes";
                             }
                         }
