@@ -188,7 +188,16 @@ namespace DataCore.Daemon
 
                 if (extended && !string.IsNullOrEmpty(crew.markdownContent) && (crew.markdownContent.Length >= 980))
                 {
-                    await message.Channel.SendMessageAsync(crew.markdownContent);
+                    embed = new EmbedBuilder()
+                    {
+                        Title = $"Big book details for {crew.name}",
+                        Color = FromRarity(crew.max_rarity),
+                        Url = $"{_datacoreURL}crew/{crew.symbol}/"
+                    };
+
+                    embed = embed.AddField("Book contents", crew.markdownContent);
+                    await message.Channel.SendMessageAsync("", false, embed.Build());
+                    //await message.Channel.SendMessageAsync(crew.markdownContent);
                 }
             }
             else

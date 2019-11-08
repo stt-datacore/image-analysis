@@ -74,7 +74,7 @@ namespace DataCore.Daemon
             }
 
             post.Reply(postText);
-            _logger.LogInformation($"Replying to post with {postText}");
+            _logger.LogInformation($"Post was a behold; replied.");
         }
 
         private string FormatReplyPost(SearchResults result, string postTitle)

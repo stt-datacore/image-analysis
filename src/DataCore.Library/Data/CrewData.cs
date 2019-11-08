@@ -23,6 +23,21 @@ namespace DataCore.Library
         public int core { get; set; }
         public int range_min { get; set; }
         public int range_max { get; set; }
+
+        public int GetBaseScore(int starbase_bonus_core = 15)
+        {
+            return core * ((100 + starbase_bonus_core) / 100);
+        }
+
+        public int GetGauntletScore(int starbase_bonus_range = 13)
+        {
+            return ((range_max + range_min) / 2) * ((100 + starbase_bonus_range) / 100);
+        }
+
+        public int GetVoyageScore(int starbase_bonus_core = 15, int starbase_bonus_range = 13)
+        {
+            return GetBaseScore(starbase_bonus_core) + GetGauntletScore(starbase_bonus_range);
+        }
     }
 
     public class Skills
@@ -33,6 +48,26 @@ namespace DataCore.Library
         public Skill engineering_skill { get; set; }
         public Skill diplomacy_skill { get; set; }
         public Skill medicine_skill { get; set; }
+
+        public int GetGauntletScore(int starbase_bonus_range = 13)
+        {
+            return ((command_skill != null) ? command_skill.GetGauntletScore(starbase_bonus_range) : 0) +
+                ((science_skill != null) ? science_skill.GetGauntletScore(starbase_bonus_range) : 0) +
+                ((security_skill != null) ? security_skill.GetGauntletScore(starbase_bonus_range) : 0) +
+                ((engineering_skill != null) ? engineering_skill.GetGauntletScore(starbase_bonus_range) : 0) +
+                ((diplomacy_skill != null) ? diplomacy_skill.GetGauntletScore(starbase_bonus_range) : 0) +
+                ((medicine_skill != null) ? medicine_skill.GetGauntletScore(starbase_bonus_range) : 0);
+        }
+
+        public int GetVoyageScore(int starbase_bonus_core = 15, int starbase_bonus_range = 13)
+        {
+            return ((command_skill != null) ? command_skill.GetVoyageScore(starbase_bonus_core, starbase_bonus_range) : 0) +
+                ((science_skill != null) ? science_skill.GetVoyageScore(starbase_bonus_core, starbase_bonus_range) : 0) +
+                ((security_skill != null) ? security_skill.GetVoyageScore(starbase_bonus_core, starbase_bonus_range) : 0) +
+                ((engineering_skill != null) ? engineering_skill.GetVoyageScore(starbase_bonus_core, starbase_bonus_range) : 0) +
+                ((diplomacy_skill != null) ? diplomacy_skill.GetVoyageScore(starbase_bonus_core, starbase_bonus_range) : 0) +
+                ((medicine_skill != null) ? medicine_skill.GetVoyageScore(starbase_bonus_core, starbase_bonus_range) : 0);
+        }
     }
 
     public class Ranks

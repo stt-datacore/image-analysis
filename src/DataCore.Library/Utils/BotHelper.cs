@@ -142,6 +142,19 @@ namespace DataCore.Library
             }
         }
 
+        private bool ExactMatch(string value, string toSearch)
+        {
+            if ((toSearch.Length >= 2) && (toSearch[0] == '"') && (toSearch[toSearch.Length - 1] == '"'))
+            {
+                // Exact match if quoted
+                return string.Equals(value, toSearch.Substring(1, toSearch.Length - 2), StringComparison.OrdinalIgnoreCase);
+            }
+            else
+            {
+                return string.Equals(value, toSearch, StringComparison.OrdinalIgnoreCase);
+            }
+        }
+
         private bool Predicate(string value, string toSearch)
         {
             if ((toSearch.Length >= 2) && (toSearch[0] == '"') && (toSearch[toSearch.Length - 1] == '"'))
@@ -175,7 +188,14 @@ namespace DataCore.Library
             {
                 lock (dataLock)
                 {
-                    var result = _allcrew.Where(crew => Predicate(crew.name, input));
+                    var result = _allcrew.Where(crew => ExactMatch(crew.name, input));
+                    // Look for an exact match first
+                    if (result.Count() == 1)
+                    {
+                        return new List<CrewData>(result);
+                    }
+
+                    result = _allcrew.Where(crew => Predicate(crew.name, input));
                     if ((result.Count() == 0) && (input.IndexOf(' ') < 0) && (input.Length > 3))
                     {
                         // Let's try a fuzzy search
