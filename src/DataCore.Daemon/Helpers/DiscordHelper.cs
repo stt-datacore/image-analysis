@@ -92,7 +92,7 @@ namespace DataCore.Daemon
 
         private static Color FromRarity(int rarity)
         {
-            switch(rarity)
+            switch (rarity)
             {
                 case 1: // Common
                     return new Color(155, 155, 155);
@@ -188,16 +188,24 @@ namespace DataCore.Daemon
 
                 if (extended && !string.IsNullOrEmpty(crew.markdownContent) && (crew.markdownContent.Length >= 980))
                 {
-                    embed = new EmbedBuilder()
+                    if (crew.markdownContent.Length < 2048)
                     {
-                        Title = $"Big book details for {crew.name}",
-                        Color = FromRarity(crew.max_rarity),
-                        Url = $"{_datacoreURL}crew/{crew.symbol}/"
-                    };
 
-                    embed = embed.AddField("Book contents", crew.markdownContent);
-                    await message.Channel.SendMessageAsync("", false, embed.Build());
-                    //await message.Channel.SendMessageAsync(crew.markdownContent);
+                        embed = new EmbedBuilder()
+                        {
+                            Title = $"Big book details for {crew.name}",
+                            Color = FromRarity(crew.max_rarity),
+                            Url = $"{_datacoreURL}crew/{crew.symbol}/",
+                            Description = crew.markdownContent
+                        };
+
+                        await message.Channel.SendMessageAsync("", false, embed.Build());
+                    }
+                    else
+                    {
+                        // The Big Book text is simply too long, it may need to be broken down into different messages (perhaps at paragraph breaks)
+                        await message.Channel.SendMessageAsync(crew.markdownContent);
+                    }
                 }
             }
             else
@@ -288,7 +296,7 @@ namespace DataCore.Daemon
 
                     embed = embed.AddField("Choice A", FormatChoice(message, dilemma.choiceA))
                         .AddField("Choice B", FormatChoice(message, dilemma.choiceB));
-                    
+
                     if (dilemma.choiceC != null)
                     {
                         embed = embed.AddField("Choice C", FormatChoice(message, dilemma.choiceC));
@@ -635,8 +643,8 @@ namespace DataCore.Daemon
         private static string TimeFormat(double duration)
         {
             int hours = (int)Math.Floor(duration);
-            int minutes = (int)Math.Floor((duration-hours)*60);
-  
+            int minutes = (int)Math.Floor((duration - hours) * 60);
+
             return string.Format("{0}h {1}m", hours, minutes);
         }
     }
