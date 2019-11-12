@@ -12,5 +12,5 @@
     "REDDIT_SUBREDDIT": ""
   },
   "HTTP_API_ENABLED": false,
-   "DATACORE_WEB": "https://datacore.netlify.com/"
+   "DATACORE_WEB": "https://datacore.app/"
 }

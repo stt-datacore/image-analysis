@@ -384,7 +384,7 @@ namespace DataCore.Daemon
 **-d search <trait> <name>** - search the crew list using combinations of traits or part of the name ('prisoner med coy' will find all McCoys that have the MED skill and the prisoner trait)
 **-d farm <rarity> <name>** - will search for items of the given rarity (0 - 5) and name, and list out sources for it
 **-d best [base <skill>]|[gauntlet <skill1> <skill2>]|[voyage <skill1> <skill2>]** - finds the top 10 best crew with the specified skillset
-**-d voytime <primary> <secondary> <any skill> <any skill> <any skill> <any skill> [<antimmatter=2500>] - does a quick estimation of voyage length
+**-d voytime <primary> <secondary> <any skill> <any skill> <any skill> <any skill> [<antimmatter=2500>]** - does a quick estimation of voyage length
 **-d dilemma [text]** - will search dilemmas for the given text
 **-d gauntlet <trait1>,<trait2>,<trait3>** - will give suggestions for crew to use in gauntlet that match at least 2 of the given traits
 ");
@@ -430,7 +430,7 @@ namespace DataCore.Daemon
                 }
                 else if (command.StartsWith("help"))
                 {
-                    await HandleMessageHelp(command.Substring(5), message);
+                    await HandleMessageHelp(command.Substring(4), message);
                 }
                 else if (command.StartsWith("farm "))
                 {

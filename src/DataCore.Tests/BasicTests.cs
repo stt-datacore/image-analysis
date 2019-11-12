@@ -30,7 +30,7 @@ namespace DataCore.Tests
         [TestMethod]
         public void TestBotHelper()
         {
-            var botHelper = new BotHelper("https://datacore.netlify.com/", Path.Combine(Directory.GetCurrentDirectory(), "../../../../.."));
+            var botHelper = new BotHelper("https://datacore.app/", Path.Combine(Directory.GetCurrentDirectory(), "../../../../.."));
             botHelper.ParseData();
 
             Assert.AreNotEqual(0, botHelper.TotalCrew());
