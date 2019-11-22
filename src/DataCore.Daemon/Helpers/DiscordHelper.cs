@@ -190,7 +190,6 @@ namespace DataCore.Daemon
                 {
                     if (crew.markdownContent.Length < 2048)
                     {
-
                         embed = new EmbedBuilder()
                         {
                             Title = $"Big book details for {crew.name}",

@@ -92,7 +92,7 @@ namespace DataCore.Library
                         if (!string.IsNullOrEmpty(entry.mission_symbol))
                         {
                             var quest = _botHelper.Quests.First(q => q.symbol == entry.mission_symbol);
-                            recipe.Add($"{FormatQuestName(quest)}, {FormatMastery(entry.mastery.Value)} {FormatType(entry.type)} **{entry.cost} chronitons** ({entry.chance_grade} / 5 chance)");
+                            recipe.Add($"{FormatQuestName(quest)}, {FormatMastery(entry.mastery.Value)} {FormatType(entry.type)} **{entry.cost} chronitons mission cost, {entry.avg_cost:0.#} chronitons item average** ({entry.chance_grade} / 5 chance)");
                         }
                     }
                 }

@@ -37,6 +37,7 @@ namespace DataCore.Library
         public string mission_symbol { get; set; }
         public string name { get; set; }
         public int? cost { get; set; }
+        public float? avg_cost { get; set; }
         public int? mastery { get; set; }
         public int chance_grade { get; set; }
     }
