@@ -247,8 +247,29 @@ namespace DataCore.CLI
 
         static int PerformTestMeme(Meme opts)
         {
-            var templates = MemeHelper.ListTemplates();
-            Console.WriteLine($"**Meme generator templates: {string.Join(", ", templates.Take(20))} and more ({templates.Count()} total)**");
+            //var templates = MemeHelper.ListTemplates();
+            //Console.WriteLine($"**Meme generator templates: {string.Join(", ", templates.Take(20))} and more ({templates.Count()} total)**");
+            
+            string searchString = @"khan ""DB!!"" ""sdfg sddsf"" ""asdfg""";
+
+            searchString = searchString.Replace('“', '"').Replace('’', '\'').Trim();
+            string pattern = @"(.*?)\""(.*?)\""(?:\W*\""(.*?)\"")?(?:\W*\""(.*?)\"")?(?:\W*\""(.*?)\"")?(?:\W*\""(.*?)\"")?$";
+            var res = System.Text.RegularExpressions.Regex.Match(searchString, pattern);
+            if (res.Success && res.Groups.Count > 3)
+            {
+                var results = res.Groups.Skip(2).Select(g => g.Value.Trim()).TakeWhile(v => !string.IsNullOrEmpty(v));
+
+                if (results.Any(v => v.IndexOf('"') >= 0))
+                {
+                    Console.WriteLine("Invalid format");
+                }
+                else
+                {
+                    string rrr = string.Join('&', results.Select((text, index) => $"text{index}={Uri.EscapeDataString(text)}"));
+                    Console.WriteLine(rrr);
+                }
+            }
+
             return 0;
         }
     }

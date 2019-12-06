@@ -344,19 +344,28 @@ namespace DataCore.Daemon
             else
             {
                 searchString = searchString.Replace('“', '"').Replace('’', '\'').Trim();
-                string pattern = @"(.*?)\""(.*?)\""\W*\""(.*?)\""";
+                string pattern = @"(.*?)\""(.*?)\""(?:\W*\""(.*?)\"")?(?:\W*\""(.*?)\"")?(?:\W*\""(.*?)\"")?(?:\W*\""(.*?)\"")?$";
                 var res = Regex.Match(searchString, pattern);
-                if (res.Success && res.Groups.Count == 4)
+                if (res.Success && res.Groups.Count > 3)
                 {
-                    var url = MemeHelper.GenerateMeme(res.Groups[1].Value.Trim(), "datacorebot", _imgflipToken, res.Groups[2].Value.Trim(), res.Groups[3].Value.Trim());
-                    if (string.IsNullOrWhiteSpace(url))
+                    var results = res.Groups.Skip(2).Select(g => g.Value.Trim()).TakeWhile(v => !string.IsNullOrEmpty(v));
+
+                    if (results.Any(v => v.IndexOf('"') >= 0))
                     {
-                        await message.Channel.SendMessageAsync("I couldn't find a meme template matching that. Look on imgflip.com for popular meme names.");
+                        await message.Channel.SendMessageAsync("Expected format is -d meme <template name> \"<first text>\" \"<second text>\". Watch the position of the quotes.");
                     }
                     else
                     {
-                        _logger.LogInformation($"Generated a meme url:'{url}' for input '{searchString}'");
-                        await message.Channel.SendMessageAsync("", false, new EmbedBuilder().WithImageUrl(url).Build());
+                        var url = MemeHelper.GenerateMeme(res.Groups[1].Value.Trim(), "datacorebot", _imgflipToken, results);
+                        if (string.IsNullOrWhiteSpace(url))
+                        {
+                            await message.Channel.SendMessageAsync("I couldn't find a meme template matching that. Look on imgflip.com for popular meme names.");
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"Generated a meme url:'{url}' for input '{searchString}'");
+                            await message.Channel.SendMessageAsync("", false, new EmbedBuilder().WithImageUrl(url).Build());
+                        }
                     }
                 }
                 else

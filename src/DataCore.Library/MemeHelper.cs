@@ -61,6 +61,11 @@ namespace DataCore.Library
                         }
 
                         _memeConfig = new List<ImgFlipResultMeme>(imgFlipResult.data.memes);
+
+                        var starTrek = new ImgFlipResultMeme();
+                        starTrek.id = "27325358";
+                        starTrek.name = "Star Trek Kirk Khan";
+                        _memeConfig.Add(starTrek);
                     }
                 }
                 catch
@@ -77,7 +82,7 @@ namespace DataCore.Library
             return new List<string>(GetMemeConfig().Select(meme => meme.name));
         }
 
-        public static string GenerateMeme(string template, string username, string password, string text0, string text1)
+        public static string GenerateMeme(string template, string username, string password, IEnumerable<string> texts)
         {
             // TODO: Better search perhaps?
             var foundMatching = GetMemeConfig().First(meme => meme.name.ToLower().IndexOf(template.ToLower()) >= 0);
@@ -91,7 +96,8 @@ namespace DataCore.Library
                 using (var client = new WebClient())
                 {
                     client.Headers[HttpRequestHeader.ContentType] = "application/x-www-form-urlencoded";
-                    string postString = $"template_id={foundMatching.id}&username={Uri.EscapeDataString(username)}&password={Uri.EscapeDataString(password)}&text0={Uri.EscapeDataString(text0)}&text1={Uri.EscapeDataString(text1)}";
+                    string postString = $"template_id={foundMatching.id}&username={Uri.EscapeDataString(username)}&password={Uri.EscapeDataString(password)}&"
+                        + string.Join('&', texts.Select((text, index) => $"text{index}={Uri.EscapeDataString(text)}"));
                     var content = client.UploadString("https://api.imgflip.com/caption_image", postString);
                     var imgFlipResult = JsonConvert.DeserializeObject<ImgFlipCaptionResult>(content);
                     if ((imgFlipResult == null) || !imgFlipResult.success)
