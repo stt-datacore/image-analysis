@@ -343,6 +343,7 @@ namespace DataCore.Daemon
             }
             else
             {
+                searchString = searchString.Replace('“', '"').Replace('’', '\'').Trim();
                 string pattern = @"(.*?)\""(.*?)\""\W*\""(.*?)\""";
                 var res = Regex.Match(searchString, pattern);
                 if (res.Success && res.Groups.Count == 4)
