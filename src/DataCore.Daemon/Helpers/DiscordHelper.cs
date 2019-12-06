@@ -63,7 +63,7 @@ namespace DataCore.Daemon
                     IEmote emote = guild.Emotes.First(e => e.Name == emoteName);
                     if (emote != null)
                     {
-                        return emote.Name;
+                        return emote.ToString();
                     }
                 }
             }
@@ -174,6 +174,33 @@ namespace DataCore.Daemon
                 {
                     embed = embed.AddField("Bigbook Tier", crew.bigbook_tier.Value, true)
                         .AddField("Events", crew.events.Value, true);
+                }
+
+                if (extended)
+                {
+                    StringBuilder shipAbilities = new StringBuilder();
+                    shipAbilities.AppendLine($"+{crew.action.bonus_amount} {crew.action.GetBonusType(crew.action.bonus_type)} | **Initialize:** {crew.action.initial_cooldown}s | **Duration:** {crew.action.duration}s | **Cooldown:** {crew.action.cooldown}s");
+
+                    if (crew.action.ability != null)
+                    {
+                        shipAbilities.AppendLine($"**Bonus Ability: **{crew.action.ability.ToString()}");
+                    }
+
+                    if ((crew.action.charge_phases != null) && (crew.action.charge_phases.Length > 0))
+                    {
+                        var cps = crew.action.GetChargePhases();
+                        for(var i = 0; i < cps.Length; i ++)
+                        {
+                            shipAbilities.AppendLine($"**Charge Phase {i + 1}:** {cps[i]}");
+                        }
+                    }
+
+                    if (crew.action.limit.HasValue)
+                    {
+                        shipAbilities.AppendLine($"**Uses:** {crew.action.limit.Value}");
+                    }
+
+                    embed = embed.AddField("Ship Abilities", shipAbilities.ToString());
                 }
 
                 if (crew.collections.Count() > 0)
