@@ -40,13 +40,15 @@ namespace DataCore.Daemon
         private BotHelper _botHelper;
         private ItemFormatter _itemFormatter;
         private string _datacoreURL;
-        public DiscordHelper(string datacoreURL, ILogger logger, Searcher searcher, VoyImage voyImage, BotHelper botHelper)
+        private string _imgflipToken;
+        public DiscordHelper(string datacoreURL, ILogger logger, Searcher searcher, VoyImage voyImage, BotHelper botHelper, string imgflipToken)
         {
             _datacoreURL = datacoreURL;
             _logger = logger;
             _voyImage = voyImage;
             _searcher = searcher;
             _botHelper = botHelper;
+            _imgflipToken = imgflipToken;
 
             _itemFormatter = new ItemFormatter(_botHelper);
         }
@@ -61,7 +63,7 @@ namespace DataCore.Daemon
                     IEmote emote = guild.Emotes.First(e => e.Name == emoteName);
                     if (emote != null)
                     {
-                        return emote.ToString();
+                        return emote.Name;
                     }
                 }
             }
@@ -243,7 +245,7 @@ namespace DataCore.Daemon
             else if (results.Count == 1)
             {
                 var reply = _itemFormatter.ToReplyText(results[0]);
-                reply = reply.Replace("chronitons", GetEmoteOrString(message, "chrons", "chronitons"));
+                reply = reply.Replace("chronitons", GetEmoteOrString(message, "chrons", "chrons"));
                 await message.Channel.SendMessageAsync(reply);
             }
             else
@@ -327,6 +329,43 @@ namespace DataCore.Daemon
                 sbReply.AppendLine(string.Join("\n", results.Results.Take(10).Select(entry => (new string('⭐', entry.Crew.max_rarity) + $" {entry.Crew.name} [{string.Join(", ", entry.MatchingTraits)}] - " + FormatCrewStatsWithEmotes(message, entry.Crew, 0, true)))));
 
                 await message.Channel.SendMessageAsync(sbReply.ToString());
+            }
+        }
+
+        private async Task HandleMessageMeme(string searchString, SocketUserMessage message)
+        {
+            if (string.IsNullOrWhiteSpace(searchString))
+            {
+                var templates = MemeHelper.ListTemplates();
+                StringBuilder sbReply = new StringBuilder();
+                sbReply.AppendLine($"**Meme generator templates: {string.Join(", ", templates.Take(20))} and more ({templates.Count()} total)**");
+                await message.Channel.SendMessageAsync(sbReply.ToString());
+            }
+            else
+            {
+                string pattern = @"(.*?)\""(.*?)\""\W*\""(.*?)\""";
+                var res = Regex.Match(searchString, pattern);
+                if (res.Success && res.Groups.Count == 4)
+                {
+                    var url = MemeHelper.GenerateMeme(res.Groups[1].Value.Trim(), "datacorebot", _imgflipToken, res.Groups[2].Value.Trim(), res.Groups[3].Value.Trim());
+                    if (string.IsNullOrWhiteSpace(url))
+                    {
+                        await message.Channel.SendMessageAsync("I couldn't find a meme template matching that. Look on imgflip.com for popular meme names.");
+                    }
+                    else
+                    {
+                        var embed = new EmbedBuilder()
+                        {
+                            ImageUrl = url
+                        };
+
+                        await message.Channel.SendMessageAsync("", false, embed.Build());
+                    }
+                }
+                else
+                {
+                    await message.Channel.SendMessageAsync("Expected format is -d meme <template name> \"<first text>\" \"<second text>\".");
+                }
             }
         }
 
@@ -470,6 +509,10 @@ namespace DataCore.Daemon
                     // A behold request as image caption
                     var url = message.Attachments.First().Url;
                     await HandleMessageBehold(url, message, true);
+                }
+                else if (command.StartsWith("meme "))
+                {
+                    await HandleMessageMeme(command.Substring(5), message);
                 }
                 else
                 {

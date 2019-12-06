@@ -72,18 +72,26 @@ namespace DataCore.CLI
         public string TestString { get; set; }
     }
 
+    [Verb("meme", HelpText = "Test the imgflip meme generator")]
+    public class Meme
+    {
+        [Value(0, Required = false)]
+        public string Input { get; set; }
+    }
+
     class Program
     {
         private static readonly System.Threading.AutoResetEvent _closing = new System.Threading.AutoResetEvent(false);
 
         static int Main(string[] args)
         {
-            return CommandLine.Parser.Default.ParseArguments<Train, Search, SearchCrew, Test, TestVoyage>(args).MapResult(
+            return CommandLine.Parser.Default.ParseArguments<Train, Search, SearchCrew, Test, TestVoyage, Meme>(args).MapResult(
                 (Train opts) => TrainDataset(opts),
                 (Search opts) => PerformSearch(opts),
                 (SearchCrew opts) => PerformSearchCrew(opts),
                 (Test opts) => PerformTest(opts),
                 (TestVoyage opts) => PerformTestVoyage(opts),
+                (Meme opts) => PerformTestMeme(opts),
                 errs => 1
             );
         }
@@ -234,6 +242,13 @@ namespace DataCore.CLI
                 Console.WriteLine(VoyageCalculator.CalculateVoyage(primary, secondary, skill3, skill4, skill5, skill6, antimatter));
             }
 
+            return 0;
+        }
+
+        static int PerformTestMeme(Meme opts)
+        {
+            var templates = MemeHelper.ListTemplates();
+            Console.WriteLine($"**Meme generator templates: {string.Join(", ", templates.Take(20))} and more ({templates.Count()} total)**");
             return 0;
         }
     }

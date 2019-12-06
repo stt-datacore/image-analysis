@@ -65,7 +65,7 @@ namespace DataCore.Daemon
 
             _client.MessageReceived += MessageReceived;
 
-            _discordHelper = new DiscordHelper(_config["DATACORE_WEB"], _logger, _searcher.Searcher, _searcher.VoyImage, _crewData.BotHelper);
+            _discordHelper = new DiscordHelper(_config["DATACORE_WEB"], _logger, _searcher.Searcher, _searcher.VoyImage, _crewData.BotHelper, _config["bot:IMGFLIP_PASSWORD"]);
 
             await _client.LoginAsync(TokenType.Bot, _config["bot:DISCORD_TOKEN"]);
             await _client.StartAsync();
