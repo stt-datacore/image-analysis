@@ -62,10 +62,9 @@ namespace DataCore.Library
 
                         _memeConfig = new List<ImgFlipResultMeme>(imgFlipResult.data.memes);
 
-                        var starTrek = new ImgFlipResultMeme();
-                        starTrek.id = "27325358";
-                        starTrek.name = "Star Trek Kirk Khan";
-                        _memeConfig.Add(starTrek);
+                        // Hard-code a few memes that aren't in the top 100
+                        _memeConfig.Add(new ImgFlipResultMeme() { id = "208698065", name = "Baby Yoda" });
+                        _memeConfig.Add(new ImgFlipResultMeme() { id = "27325358", name = "Star Trek Kirk Khan" });
                     }
                 }
                 catch
