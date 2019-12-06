@@ -334,7 +334,7 @@ namespace DataCore.Daemon
 
         private async Task HandleMessageMeme(string searchString, SocketUserMessage message)
         {
-            if (string.IsNullOrWhiteSpace(searchString))
+            if (searchString.Trim().IndexOf("list", StringComparison.CurrentCultureIgnoreCase) == 0)
             {
                 var templates = MemeHelper.ListTemplates();
                 StringBuilder sbReply = new StringBuilder();
@@ -354,12 +354,8 @@ namespace DataCore.Daemon
                     }
                     else
                     {
-                        var embed = new EmbedBuilder()
-                        {
-                            ImageUrl = url
-                        };
-
-                        await message.Channel.SendMessageAsync("", false, embed.Build());
+                        _logger.LogInformation($"Generated a meme url:'{url}' for input '{searchString}'");
+                        await message.Channel.SendMessageAsync("", false, new EmbedBuilder().WithImageUrl(url).Build());
                     }
                 }
                 else
