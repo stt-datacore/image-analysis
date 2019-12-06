@@ -334,7 +334,7 @@ namespace DataCore.Daemon
 
         private async Task HandleMessageMeme(string searchString, SocketUserMessage message)
         {
-            if (searchString.Trim().IndexOf("list", StringComparison.CurrentCultureIgnoreCase) == 0)
+            if (searchString.Trim().ToLower().IndexOf("list") == 0)
             {
                 var templates = MemeHelper.ListTemplates();
                 StringBuilder sbReply = new StringBuilder();
@@ -421,6 +421,7 @@ namespace DataCore.Daemon
 **-d voytime <primary> <secondary> <any skill> <any skill> <any skill> <any skill> [<antimmatter=2500>]** - does a quick estimation of voyage length
 **-d dilemma [text]** - will search dilemmas for the given text
 **-d gauntlet <trait1>,<trait2>,<trait3>** - will give suggestions for crew to use in gauntlet that match at least 2 of the given traits
+**-d meme list|<template name> ""Text 1"" ""Text 2""** - will generate a meme with the given parameters and post the image back
 ");
         }
 

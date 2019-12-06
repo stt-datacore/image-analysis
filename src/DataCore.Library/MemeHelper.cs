@@ -80,7 +80,7 @@ namespace DataCore.Library
         public static string GenerateMeme(string template, string username, string password, string text0, string text1)
         {
             // TODO: Better search perhaps?
-            var foundMatching = GetMemeConfig().First(meme => meme.name.IndexOf(template, StringComparison.CurrentCultureIgnoreCase) >= 0);
+            var foundMatching = GetMemeConfig().First(meme => meme.name.ToLower().IndexOf(template.ToLower()) >= 0);
             if (foundMatching == null)
             {
                 return null;
