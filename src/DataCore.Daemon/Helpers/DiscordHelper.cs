@@ -558,6 +558,18 @@ namespace DataCore.Daemon
                 var command = message.Content.Substring(4).Trim();
                 await HandleMessageDilemma(command, message);
             }
+            else if (message.Content.StartsWith("!bestdax") || message.Content.StartsWith("$bestdax"))
+            {
+                await message.Channel.SendMessageAsync($"**Jadzia is the #bestdax**");
+            }
+            else if (message.Content.StartsWith("!gn") || message.Content.StartsWith("$gn"))
+            {
+                await message.Channel.SendMessageAsync(message.Author.Mention + $", sleep long and prosper 🖖");
+            }
+            else if (message.Content.StartsWith("!mutiny") || message.Content.StartsWith("$mutiny"))
+            {
+                await message.Channel.SendMessageAsync(message.Author.Mention + $", your mutinous activity shall be reported to leadership!");
+            }
             else if (message.Attachments.Count > 0)
             {
                 var url = message.Attachments.First().Url;
