@@ -189,7 +189,7 @@ namespace DataCore.Daemon
                     if ((crew.action.charge_phases != null) && (crew.action.charge_phases.Length > 0))
                     {
                         var cps = crew.action.GetChargePhases();
-                        for(var i = 0; i < cps.Length; i ++)
+                        for (var i = 0; i < cps.Length; i++)
                         {
                             shipAbilities.AppendLine($"**Charge Phase {i + 1}:** {cps[i]}");
                         }
@@ -448,6 +448,47 @@ namespace DataCore.Daemon
             }
         }
 
+        private async Task HandleMessageVoytime2(string searchString, SocketUserMessage message, bool fromImage)
+        {
+            var inputs = searchString.Trim().Split(' ');
+            if (inputs.Count() != 7)
+            {
+                await message.Channel.SendMessageAsync($"Expected format is <antimmatter> <primary> <secondary> <any skill> <any skill> <any skill> <any skill>");
+            }
+
+            if (int.TryParse(inputs[0], out int antimatter) &&
+                int.TryParse(inputs[1], out int primary) &&
+                int.TryParse(inputs[2], out int secondary) &&
+                int.TryParse(inputs[3], out int skill3) &&
+                int.TryParse(inputs[4], out int skill4) &&
+                int.TryParse(inputs[5], out int skill5) &&
+                int.TryParse(inputs[6], out int skill6))
+            {
+                var extendResults = VoyageCalculator.CalculateVoyage(primary, secondary, skill3, skill4, skill5, skill6, antimatter);
+
+                string reply;
+                if (fromImage)
+                {
+                    reply = $@"Did I get the numbers wrong? I'm still learning, please let @TemporalAgent7 know. Double-check the values, re-run the command with `-d voytime {primary} {secondary} {skill3} {skill4} {skill5} {skill6} {antimatter}` if it needs corrections.
+*If you're on a laptop / desktop, try the online Voyage tool at {_datacoreURL}voyage for crew recommendations and more.*";
+                }
+                else
+                {
+                    reply = $"*If you're on a laptop / desktop, try the online Voyage tool at {_datacoreURL}voyage for crew recommendations and more.*";
+                }
+
+                reply = $@"Estimated voyage length of {TimeFormat(extendResults[0].result)}
+{extendResults[0].dilChance}% chance to reach the {extendResults[0].lastDil}hr dilemma; refill with {extendResults[1].refillCostResult} dil for a {extendResults[1].dilChance}% chance to reach the {extendResults[1].lastDil}hr dilemma.
+{reply}";
+
+                await message.Channel.SendMessageAsync(reply);
+            }
+            else
+            {
+                await message.Channel.SendMessageAsync($"Expected format is <antimmatter> <primary> <secondary> <any skill> <any skill> <any skill> <any skill>, with all the parameters being numbers");
+            }
+        }
+
         private async Task HandleMessageHelp(string searchString, SocketUserMessage message)
         {
             await message.Channel.SendMessageAsync($@"Here are some things you can try:
@@ -558,18 +599,6 @@ namespace DataCore.Daemon
                 var command = message.Content.Substring(4).Trim();
                 await HandleMessageDilemma(command, message);
             }
-            else if (message.Content.StartsWith("!bestdax") || message.Content.StartsWith("$bestdax"))
-            {
-                await message.Channel.SendMessageAsync($"**Jadzia is the #bestdax**");
-            }
-            else if (message.Content.StartsWith("!gn") || message.Content.StartsWith("$gn"))
-            {
-                await message.Channel.SendMessageAsync(message.Author.Mention + $", sleep long and prosper 🖖");
-            }
-            else if (message.Content.StartsWith("!mutiny") || message.Content.StartsWith("$mutiny"))
-            {
-                await message.Channel.SendMessageAsync(message.Author.Mention + $", your mutinous activity shall be reported to leadership!");
-            }
             else if (message.Attachments.Count > 0)
             {
                 var url = message.Attachments.First().Url;
@@ -583,6 +612,56 @@ namespace DataCore.Daemon
                 {
                     var url = matches[0].Value;
                     await HandleMessageBehold(url, message, false);
+                }
+            }
+
+            // Temporary fleet commands for VIP0
+            if (GetMessageGuild(message) == "VIP 0")
+            {
+                if (message.Content.StartsWith("!bestdax") || message.Content.StartsWith("$bestdax"))
+                {
+                    await message.Channel.SendMessageAsync($"**Jadzia is the #bestdax**");
+                }
+                else if (message.Content.StartsWith("!gn") || message.Content.StartsWith("$gn"))
+                {
+                    await message.Channel.SendMessageAsync(message.Author.Mention + $", sleep long and prosper 🖖");
+                }
+                else if (message.Content.StartsWith("!mutiny") || message.Content.StartsWith("$mutiny"))
+                {
+                    await message.Channel.SendMessageAsync(message.Author.Mention + $", your mutinous activity shall be reported to leadership!");
+                }
+                else if (message.Content.StartsWith("!behold") || message.Content.StartsWith("$behold"))
+                {
+                    await message.Channel.SendMessageAsync($"**ATS! ALWAYS. TAKE. STAR.**");
+                }
+                else if (message.Content.StartsWith("$d "))
+                {
+                    await HandleMessageDilemma(message.Content.Substring(3).Trim(), message);
+                }
+                else if (message.Content.StartsWith("$c "))
+                {
+                    await HandleMessageStats(message.Content.Substring(3).Trim(), message, true);
+                }
+                else if (message.Content.StartsWith("$am "))
+                {
+                    var command = message.Content.Substring(4).Trim();
+                    if (int.TryParse(command, out int am))
+                    {
+                        await message.Channel.SendMessageAsync($"Your voyage should last at least another {Convert.ToInt32(am / 23)} minutes.");
+                    }
+                }
+                else if (message.Content.StartsWith("$timer "))
+                {
+                    var command = message.Content.Substring(7).Trim();
+                    if (int.TryParse(command, out int am))
+                    {
+                        await message.Channel.SendMessageAsync($@"**Sorry, I can't do that yet!**
+Your voyage should last at least another {Convert.ToInt32(am / 23)} minutes, remember to log in 3 minutes before that to recall!");
+                    }
+                }
+                else if (message.Content.StartsWith("$voy "))
+                {
+                    await HandleMessageVoytime2(message.Content.Substring(5).Trim(), message, false);
                 }
             }
         }
