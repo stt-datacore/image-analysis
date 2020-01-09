@@ -55,7 +55,7 @@ namespace DataCore.Daemon
                 _logger.LogInformation($"Starting api endpoint");
                 _webHost = WebHost.CreateDefaultBuilder()
                     .Configure(app => app.Run(RequestDelegate))
-                    .UseUrls("http://::5000;http://0.0.0.0:5000")
+                    .UseUrls("http://::5000;http://*:5000")
                     .Build();
 
                 return _webHost.StartAsync(token);
