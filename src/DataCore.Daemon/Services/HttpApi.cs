@@ -69,16 +69,14 @@ namespace DataCore.Daemon
         {
             if (context.Request.Path.HasValue && context.Request.Path.Value.StartsWith("/api"))
             {
-                if (context.Request.Path.Value == "/api/behold" && context.Request.Method == "POST" && context.Request.ContentLength < 8000000)
+                if (context.Request.Path.Value == "/api/behold" && context.Request.Method == "GET" && context.Request.Query.ContainsKey("url"))
                 {
-                    using (BinaryReader reader = new BinaryReader(context.Request.Body))
+                    string url = context.Request.Query["url"];
+                    var results = _searcher.Searcher.SearchUrl(url);
+                    if (results != null)
                     {
-                        var results = _searcher.Searcher.SearchBinaryReader(reader);
-                        if (results != null)
-                        {
-                            context.Response.ContentType = "application/json";
-                            return context.Response.WriteAsync(results.ToJson());
-                        }
+                        context.Response.ContentType = "application/json";
+                        return context.Response.WriteAsync(results.ToJson());
                     }
                 }
                 else if (context.Request.Path.Value == "/api/downloadnow")

@@ -205,7 +205,7 @@ namespace DataCore.Daemon
 
                 if (crew.collections.Count() > 0)
                 {
-                    embed = embed.AddField("Collections", string.Join(", ", crew.collections.Select(c => $"[{c}]({_datacoreURL}collection/{c.Replace(" ", "%20")}/)")));
+                    embed = embed.AddField("Collections", string.Join(", ", crew.collections.Select(c => $"[{c}]({_datacoreURL}collections#{c.Replace(" ", "%20")}/)")));
                 }
 
                 if (extended && !string.IsNullOrEmpty(crew.markdownContent) && (crew.markdownContent.Length < 980))
