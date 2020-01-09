@@ -55,6 +55,7 @@ namespace DataCore.Daemon
                 _logger.LogInformation($"Starting api endpoint");
                 _webHost = WebHost.CreateDefaultBuilder()
                     .Configure(app => app.Run(RequestDelegate))
+                    .UseUrls("http://::5000;http://*:5000")
                     .Build();
 
                 return _webHost.StartAsync(token);
@@ -84,7 +85,7 @@ namespace DataCore.Daemon
                     _crewDataSingletonService.BotHelper.DownloadNewData();
                 }
 
-                return context.Response.WriteAsync("Nothing to see here!");
+                return context.Response.WriteAsync($"Nothing to see here! ({context.Request.Path.Value})");
             }
 
             context.Response.StatusCode = 418;
