@@ -86,7 +86,7 @@ namespace DataCore.Daemon
                         voyResult = resultsVoy.valid ? resultsVoy.ToJson() : "undefined";
                     }
 
-                    return context.Response.WriteAsync($"{{beholdResult: {beholdResult}, voyResult: {voyResult}}}");
+                    return context.Response.WriteAsync($"{{\"beholdResult\": {beholdResult}, \"voyResult\": {voyResult}}}");
                 }
                 else if (context.Request.Path.Value == "/api/downloadnow")
                 {
