@@ -71,25 +71,22 @@ namespace DataCore.Daemon
             {
                 if (context.Request.Path.Value == "/api/behold" && context.Request.Method == "GET" && context.Request.Query.ContainsKey("url"))
                 {
+                    context.Response.ContentType = "application/json";
                     string url = context.Request.Query["url"];
                     var results = _searcher.Searcher.SearchUrl(url);
-                    if (results != null)
+                    string beholdResult = "undefined";
+                    string voyResult = "undefined";
+                    if ((results != null) && results.IsValid(9))
                     {
-                        context.Response.ContentType = "application/json";
-                        return context.Response.WriteAsync(results.ToJson());
+                        beholdResult = results.ToJson();
                     } else {
-                        // Not a behold
+                        // Not a guaranteed behold
+                        beholdResult = (results != null) ? results.ToJson() : "undefined";
                         var resultsVoy = _searcher.VoyImage.SearchUrl(url);
-                        if (resultsVoy.valid)
-                        {
-                            context.Response.ContentType = "application/json";
-                            return context.Response.WriteAsync(resultsVoy.ToJson());
-                        } else {
-                            // Not a voyage screenshot either
-                            context.Response.ContentType = "application/json";
-                            return context.Response.WriteAsync("{}");
-                        }
+                        voyResult = resultsVoy.valid ? resultsVoy.ToJson() : "undefined";
                     }
+
+                    return context.Response.WriteAsync($"{{beholdResult: {beholdResult}, voyResult: {voyResult}}}");
                 }
                 else if (context.Request.Path.Value == "/api/downloadnow")
                 {
