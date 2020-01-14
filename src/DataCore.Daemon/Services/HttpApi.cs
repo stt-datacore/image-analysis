@@ -77,6 +77,18 @@ namespace DataCore.Daemon
                     {
                         context.Response.ContentType = "application/json";
                         return context.Response.WriteAsync(results.ToJson());
+                    } else {
+                        // Not a behold
+                        var resultsVoy = _searcher.VoyImage.SearchUrl(url);
+                        if (resultsVoy.valid)
+                        {
+                            context.Response.ContentType = "application/json";
+                            return context.Response.WriteAsync(resultsVoy.ToJson());
+                        } else {
+                            // Not a voyage screenshot either
+                            context.Response.ContentType = "application/json";
+                            return context.Response.WriteAsync("{}");
+                        }
                     }
                 }
                 else if (context.Request.Path.Value == "/api/downloadnow")

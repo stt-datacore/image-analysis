@@ -23,6 +23,8 @@ using System;
 using System.IO;
 using System.Net;
 
+using Newtonsoft.Json;
+
 namespace DataCore.Library
 {
     public struct ParsedSkill
@@ -41,6 +43,11 @@ namespace DataCore.Library
         public ParsedSkill med;
         public ParsedSkill sci;
         public ParsedSkill sec;
+
+        public string ToJson()
+        {
+            return JsonConvert.SerializeObject(this);
+        }
 
         public override string ToString()
         {
