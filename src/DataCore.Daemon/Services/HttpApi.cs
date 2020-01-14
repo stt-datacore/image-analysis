@@ -74,16 +74,16 @@ namespace DataCore.Daemon
                     context.Response.ContentType = "application/json";
                     string url = context.Request.Query["url"];
                     var results = _searcher.Searcher.SearchUrl(url);
-                    string beholdResult = "undefined";
-                    string voyResult = "undefined";
+                    string beholdResult = "null";
+                    string voyResult = "null";
                     if ((results != null) && results.IsValid(9))
                     {
                         beholdResult = results.ToJson();
                     } else {
                         // Not a guaranteed behold
-                        beholdResult = (results != null) ? results.ToJson() : "undefined";
+                        beholdResult = (results != null) ? results.ToJson() : "null";
                         var resultsVoy = _searcher.VoyImage.SearchUrl(url);
-                        voyResult = resultsVoy.valid ? resultsVoy.ToJson() : "undefined";
+                        voyResult = resultsVoy.valid ? resultsVoy.ToJson() : "null";
                     }
 
                     return context.Response.WriteAsync($"{{\"beholdResult\": {beholdResult}, \"voyResult\": {voyResult}}}");
