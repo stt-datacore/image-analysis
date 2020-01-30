@@ -532,7 +532,7 @@ namespace DataCore.Daemon
 
             if ((_disabledGuilds != null) && (_disabledGuilds.Length > 0))
             {
-                if (_disabledGuilds.Any(s => s.Contains(GetMessageGuild(message))))
+                if ((GetMessageGuild(message) != null) && _disabledGuilds.Any(s => s.Contains(GetMessageGuild(message))))
                 {
                     // On the disabled guild list
                     _logger.LogInformation("On the disabled guild list");
