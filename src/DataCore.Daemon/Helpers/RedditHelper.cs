@@ -93,6 +93,14 @@ namespace DataCore.Daemon
             var c2s = CrewFormatter.FormatCrewStats(crew[1], false);
             var c3s = CrewFormatter.FormatCrewStats(crew[2], false);
 
+            DateTime FutureDate = new DateTime(2020, 3, 1);
+            DateTime TodayDate = DateTime.Now;
+            int days = (FutureDate - TodayDate).Days;
+
+            if (days <= 0) {
+                return string.Empty;
+            }
+
             if (postTitle.StartsWith("Behold", StringComparison.CurrentCultureIgnoreCase) && (postTitle.Split(',').Length > 1))
             {
                 // Appears to have correct title format
@@ -117,10 +125,13 @@ Big Book {(crew[index].bigbook_tier.HasValue ? $"**Tier {crew[index].bigbook_tie
 
 {perCrewFormat(2)}
 
-Talk to TemporalAgent7 if you have questions or comments!";
+Talk to TemporalAgent7 if you have questions or comments!
+
+**The bot will stop replying in {days} days. Please use [Discord](https://discord.gg/8Du7ZtJ); read [here](https://www.reddit.com/r/StarTrekTimelines/comments/eryf5l/reddit_behold_bot_retiring/) for details.**
+";
             }
 
-            return $@"This post appears to be a behold, but it doesn't follow the [subreddit rule](https://www.reddit.com/r/StarTrekTimelines/comments/cgf25y/new_subreddit_rule_regarding_behold_posts/) for Behold posts; your post title should be `Behold! {crew[0].name}, {crew[1].name}, {crew[2].name}`. You can delete it and repost if you want me to reply with details.";
+            return $@"This post appears to be a behold, but it doesn't follow the [subreddit rule](https://www.reddit.com/r/StarTrekTimelines/comments/cgf25y/new_subreddit_rule_regarding_behold_posts/) for Behold posts; your post title should be `Behold! {crew[0].name}, {crew[1].name}, {crew[2].name}`. You can delete it and repost if you want me to reply with details. I'll stop replying in {days} days.";
         }
     }
 }
