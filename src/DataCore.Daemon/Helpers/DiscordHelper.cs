@@ -530,7 +530,7 @@ namespace DataCore.Daemon
             // TODO: Use the command framework in Discord.net instead of manual parsing
             _logger.LogInformation("Message received from '{Username}' on channel {Channel} ({Guild}): {Content}", message.Author.Username, message.Channel.Name, GetMessageGuild(message), message.Content);
 
-            if (_disabledGuilds.Length > 0)
+            if ((_disabledGuilds != null) && (_disabledGuilds.Length > 0))
             {
                 if (_disabledGuilds.Any(s => s.Contains(GetMessageGuild(message))))
                 {
