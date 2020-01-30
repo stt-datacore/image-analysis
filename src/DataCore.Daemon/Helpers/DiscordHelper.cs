@@ -41,7 +41,9 @@ namespace DataCore.Daemon
         private ItemFormatter _itemFormatter;
         private string _datacoreURL;
         private string _imgflipToken;
-        public DiscordHelper(string datacoreURL, ILogger logger, Searcher searcher, VoyImage voyImage, BotHelper botHelper, string imgflipToken)
+        private string[] _disabledGuilds;
+
+        public DiscordHelper(string datacoreURL, string[] disabledGuilds, ILogger logger, Searcher searcher, VoyImage voyImage, BotHelper botHelper, string imgflipToken)
         {
             _datacoreURL = datacoreURL;
             _logger = logger;
@@ -49,6 +51,7 @@ namespace DataCore.Daemon
             _searcher = searcher;
             _botHelper = botHelper;
             _imgflipToken = imgflipToken;
+            _disabledGuilds = disabledGuilds;
 
             _itemFormatter = new ItemFormatter(_botHelper);
         }
@@ -526,6 +529,17 @@ namespace DataCore.Daemon
         {
             // TODO: Use the command framework in Discord.net instead of manual parsing
             _logger.LogInformation("Message received from '{Username}' on channel {Channel} ({Guild}): {Content}", message.Author.Username, message.Channel.Name, GetMessageGuild(message), message.Content);
+
+            if (_disabledGuilds.Length > 0)
+            {
+                if (_disabledGuilds.Any(s => s.Contains(GetMessageGuild(message))))
+                {
+                    // On the disabled guild list
+                    _logger.LogInformation("On the disabled guild list");
+                    return;
+                }
+            }
+
             if (message.Content.StartsWith("-d "))
             {
                 var command = message.Content.Substring(3);
