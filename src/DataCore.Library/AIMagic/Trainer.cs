@@ -87,7 +87,7 @@ namespace DataCore.Library
                 if ((features.Rows > 0) && (features.Cols > 0))
                 {
                     float[] featuresBytes = new float[features.Rows * features.Cols];
-                    features.GetArray(0, 0, featuresBytes);
+                    features.GetArray(out featuresBytes);
 
                     imgIndexes.Add(new ImageIndex()
                     {
@@ -117,7 +117,7 @@ namespace DataCore.Library
             if ((features.Rows > 0) && (features.Cols > 0))
             {
                 float[] featuresBytes = new float[features.Rows * features.Cols];
-                features.GetArray(0, 0, featuresBytes);
+                features.GetArray(out featuresBytes);
 
                 var imgIdx = new List<ImageIndex>();
                 imgIdx.Add(new ImageIndex()

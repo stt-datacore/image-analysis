@@ -177,7 +177,7 @@ namespace DataCore.Library
             foreach (var item in _indexedDatset)
             {
                 Mat itemFeatures = new Mat(item.Rows, item.Cols, item.MType);
-                itemFeatures.SetArray(0, 0, item.Features);
+                itemFeatures.SetArray(item.Features);
                 Mat tempItem = itemFeatures;
 
                 itemFeatures.ConvertTo(itemFeatures, MatType.CV_32F);

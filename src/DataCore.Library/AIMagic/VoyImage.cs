@@ -331,7 +331,7 @@ namespace DataCore.Library
         }
 
         // Copies in-memory pixels out of an OpenCV Mat into a PixData that Tesseract / Leptonica understands
-        private unsafe void TransferData(MatOfByte3 mat3, PixData pixData)
+        private unsafe void TransferData(Mat<Vec3b> mat3, PixData pixData)
         {
             var indexer = mat3.GetIndexer();
 
@@ -364,7 +364,7 @@ namespace DataCore.Library
                 try
                 {
                     pixData = pix.GetData();
-                    MatOfByte3 mat3 = new MatOfByte3(skillValue);
+                    Mat<Vec3b> mat3 = new Mat<Vec3b>(skillValue);
                     TransferData(mat3, pixData);
                 }
                 catch (Exception)
