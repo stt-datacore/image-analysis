@@ -20,6 +20,7 @@ using OpenCvSharp;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net;
 using System.Runtime.Serialization.Formatters.Binary;
 using Newtonsoft.Json;
 
@@ -55,6 +56,19 @@ namespace DataCore.Library
             return result;
         }
 
+        private static byte[] ReadAllBytes(BinaryReader reader)
+        {
+            const int bufferSize = 4096;
+            using (var ms = new MemoryStream())
+            {
+                byte[] buffer = new byte[bufferSize];
+                int count;
+                while ((count = reader.Read(buffer, 0, buffer.Length)) != 0)
+                    ms.Write(buffer, 0, count);
+                return ms.ToArray();
+            }
+        }
+
         public static void ParseDataset(string datacorepath, string outPath, bool noimages, Action<string> progress)
         {
             var crewPath = Path.Combine(datacorepath, "static", "structured", "crew.json");
@@ -62,6 +76,8 @@ namespace DataCore.Library
             Crew[] allcrew = JsonConvert.DeserializeObject<Crew[]>(File.ReadAllText(crewPath));
             SURFDescriptor descriptor = new SURFDescriptor();
             List<ImageIndex> imgIndexes = new List<ImageIndex>();
+
+            bool useWeb = false;
 
             foreach (Crew crew in allcrew)
             {
@@ -72,36 +88,64 @@ namespace DataCore.Library
 
                 progress($"Parsing {crew.name}...");
 
-                string fileName = Path.Combine(assetPath, crew.imageUrlFullBody);
-                Mat image = Cv2.ImRead(fileName, ImreadModes.Unchanged);
-                image = image.SubMat(0, image.Rows * 7 / 10, 0, image.Cols);
+                Mat image;
 
-                if (!noimages)
+                // parse from web instead (since assets are no longer committed to GitHub)
+                if (useWeb)
                 {
-                    Cv2.ImWrite(Path.Combine(outPath, "data", "traindata", $"feat_{crew.symbol}.png"), image);
+                    using (var client = new WebClient())
+                    {
+                        using (BinaryReader reader = new BinaryReader(client.OpenRead($"https://assets.datacore.app/{crew.imageUrlFullBody}")))
+                        {
+                            image = Cv2.ImDecode(ReadAllBytes(reader), ImreadModes.Color);
+                        }
+                    }
+                }
+                else
+                {
+                    string fileName = Path.Combine(assetPath, crew.imageUrlFullBody);
+                    image = Cv2.ImRead(fileName, ImreadModes.Unchanged);
                 }
 
-                KeyPoint[] keypoints;
-                var features = descriptor.Describe(image, out keypoints);
-
-                if ((features.Rows > 0) && (features.Cols > 0))
+                ImageIndex imgIndex = fromImage(descriptor, noimages, outPath, crew, image);
+                if (imgIndex != null)
                 {
-                    float[] featuresBytes = new float[features.Rows * features.Cols];
-                    features.GetArray(out featuresBytes);
-
-                    imgIndexes.Add(new ImageIndex()
-                    {
-                        Features = featuresBytes,
-                        MType = features.Type(),
-                        Cols = features.Cols,
-                        Rows = features.Rows,
-                        Symbol = crew.symbol,
-                        Rarity = crew.max_rarity
-                    });
+                    imgIndexes.Add(imgIndex);
                 }
             }
 
             SaveToDisk(imgIndexes, outPath);
+        }
+
+        private static ImageIndex fromImage(SURFDescriptor descriptor, bool noimages, string outPath, Crew crew, Mat image)
+        {
+            image = image.SubMat(0, image.Rows * 7 / 10, 0, image.Cols);
+
+            if (!noimages)
+            {
+                Cv2.ImWrite(Path.Combine(outPath, "data", "traindata", $"feat_{crew.symbol}.png"), image);
+            }
+
+            KeyPoint[] keypoints;
+            var features = descriptor.Describe(image, out keypoints);
+
+            if ((features.Rows > 0) && (features.Cols > 0))
+            {
+                float[] featuresBytes = new float[features.Rows * features.Cols];
+                features.GetArray(out featuresBytes);
+
+                return new ImageIndex()
+                {
+                    Features = featuresBytes,
+                    MType = features.Type(),
+                    Cols = features.Cols,
+                    Rows = features.Rows,
+                    Symbol = crew.symbol,
+                    Rarity = crew.max_rarity
+                };
+            }
+
+            return null;
         }
 
         public static void ParseSingleImage(string imagePath, string symbol, string outPath)
