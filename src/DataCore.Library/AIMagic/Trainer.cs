@@ -77,7 +77,7 @@ namespace DataCore.Library
             SURFDescriptor descriptor = new SURFDescriptor();
             List<ImageIndex> imgIndexes = new List<ImageIndex>();
 
-            bool useWeb = false;
+            bool useWeb = true;
 
             foreach (Crew crew in allcrew)
             {
@@ -97,7 +97,7 @@ namespace DataCore.Library
                     {
                         using (BinaryReader reader = new BinaryReader(client.OpenRead($"https://assets.datacore.app/{crew.imageUrlFullBody}")))
                         {
-                            image = Cv2.ImDecode(ReadAllBytes(reader), ImreadModes.Color);
+                            image = Cv2.ImDecode(ReadAllBytes(reader), ImreadModes.Unchanged);
                         }
                     }
                 }
