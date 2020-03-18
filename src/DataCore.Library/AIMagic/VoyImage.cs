@@ -67,7 +67,7 @@ namespace DataCore.Library
                 {
                     if (!string.IsNullOrEmpty(primary))
                     {
-                        invalid = true; 
+                        invalid = true;
                     }
                     primary = skill.SkillValue.ToString();
                 }
@@ -75,7 +75,7 @@ namespace DataCore.Library
                 {
                     if (!string.IsNullOrEmpty(secondary))
                     {
-                        invalid = true; 
+                        invalid = true;
                     }
                     secondary = skill.SkillValue.ToString();
                 }
@@ -136,39 +136,16 @@ namespace DataCore.Library
             _tessEngine.SetVariable("classify_bln_numeric_mode", "1");
         }
 
-        // TODO: share with Searcher
-        private static byte[] ReadAllBytes(BinaryReader reader)
-        {
-            const int bufferSize = 4096;
-            using (var ms = new MemoryStream())
-            {
-                byte[] buffer = new byte[bufferSize];
-                int count;
-                while ((count = reader.Read(buffer, 0, buffer.Length)) != 0)
-                    ms.Write(buffer, 0, count);
-                return ms.ToArray();
-            }
-        }
-
         public VoyImageResult SearchUrl(string imageUrl)
         {
-            try
+            DownloadResult downloadResult = ImgDownload.Download(imageUrl);
+            if (downloadResult.image != null)
             {
-                using (var client = new WebClient())
-                {
-                    lock (this)
-                    {
-                        using (BinaryReader reader = new BinaryReader(client.OpenRead(imageUrl)))
-                        {
-                            return SearchMat(Cv2.ImDecode(ReadAllBytes(reader), ImreadModes.Color));
-                        }
-                    }
-                }
+                return SearchMat(downloadResult.image);
             }
-            catch
-            {
-                return VoyImageResult.Invalid();
-            }
+
+            return VoyImageResult.Invalid();
+
         }
 
         public VoyImageResult SearchImage(string fileName)
@@ -176,7 +153,7 @@ namespace DataCore.Library
             return SearchMat(Cv2.ImRead(fileName));
         }
 
-        private VoyImageResult SearchMat(Mat query)
+        public VoyImageResult SearchMat(Mat query)
         {
             try
             {
@@ -288,7 +265,7 @@ namespace DataCore.Library
             result.cmd.SkillValue = OCRNumber(bottom.SubMat(maxlocCmd.Y, maxlocCmd.Y + height, maxlocCmd.X - (scaledWidth * 5), maxlocCmd.X - (scaledWidth / 8)), "cmd");
             result.cmd.Primary = HasStar(bottom.SubMat(maxlocCmd.Y, maxlocCmd.Y + height, maxlocCmd.X + (scaledWidth * 9 / 8), maxlocCmd.X + (scaledWidth * 5 / 2)), "cmd");
 
-            result.dip.SkillValue = OCRNumber(bottom.SubMat(maxlocCmd.Y + height, maxlocSci.Y, maxlocCmd.X - (scaledWidth * 5), (int)(maxlocCmd.X - (_skill_dip.Width - _skill_sci.Width)* widthScale)), "dip");
+            result.dip.SkillValue = OCRNumber(bottom.SubMat(maxlocCmd.Y + height, maxlocSci.Y, maxlocCmd.X - (scaledWidth * 5), (int)(maxlocCmd.X - (_skill_dip.Width - _skill_sci.Width) * widthScale)), "dip");
             result.dip.Primary = HasStar(bottom.SubMat(maxlocCmd.Y + height, maxlocSci.Y, maxlocCmd.X + (scaledWidth * 9 / 8), maxlocCmd.X + (scaledWidth * 5 / 2)), "dip");
 
             result.eng.SkillValue = OCRNumber(bottom.SubMat(maxlocSci.Y, maxlocSci.Y + height, maxlocCmd.X - (scaledWidth * 5), (int)(maxlocCmd.X - (_skill_eng.Width - _skill_sci.Width) * widthScale)), "eng");

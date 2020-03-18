@@ -35,12 +35,6 @@ namespace DataCore.Library
         public int stars { get; set; }
     }
 
-    public class GyazoResult
-    {
-        public string type { get; set; }
-        public string url { get; set; }
-    }
-
     public class SearchResults
     {
         public int input_width { get; set; }
@@ -209,7 +203,7 @@ namespace DataCore.Library
             return result;
         }
 
-        private SearchResults SearchImage(Mat query)
+        public SearchResults SearchImage(Mat query)
         {
             SearchResults results = new SearchResults();
             results.input_height = query.Rows;
@@ -328,76 +322,15 @@ namespace DataCore.Library
             return SearchImage(Cv2.ImRead(fileName));
         }
 
-        private static byte[] ReadAllBytes(BinaryReader reader)
-        {
-            const int bufferSize = 4096;
-            using (var ms = new MemoryStream())
-            {
-                byte[] buffer = new byte[bufferSize];
-                int count;
-                while ((count = reader.Read(buffer, 0, buffer.Length)) != 0)
-                    ms.Write(buffer, 0, count);
-                return ms.ToArray();
-            }
-        }
-
-        public SearchResults SearchBinaryReader(BinaryReader reader)
-        {
-            return SearchImage(Cv2.ImDecode(ReadAllBytes(reader), ImreadModes.Color));
-        }
-
         public SearchResults SearchUrl(string imageUrl)
         {
-            try
+            DownloadResult downloadResult = ImgDownload.Download(imageUrl);
+            if (downloadResult.image != null)
             {
-                using (var client = new WebClient())
-                {
-                    lock (this)
-                    {
-                        if (imageUrl.StartsWith("https://gyazo.com"))
-                        {
-                            var content = client.DownloadString($"https://api.gyazo.com/api/oembed?url={imageUrl}");
-                            var gyazoResult = JsonConvert.DeserializeObject<GyazoResult>(content);
-                            if ((gyazoResult == null) || (gyazoResult.type != "photo"))
-                            {
-                                return null;
-                            }
-
-                            imageUrl = gyazoResult.url;
-                        }
-
-                        using (BinaryReader reader = new BinaryReader(client.OpenRead(imageUrl)))
-                        {
-                            var result = SearchBinaryReader(reader);
-
-                            try
-                            {
-                                using (StreamWriter sw = File.AppendText("log.csv"))
-                                {
-                                    if (result.top == null)
-                                    {
-                                        sw.WriteLine($"{imageUrl}, NOT_FOUND, 0, NOT_FOUND, 0, NOT_FOUND, 0, NOT_FOUND, 0");
-                                    }
-                                    else
-                                    {
-                                        sw.WriteLine($"{imageUrl}, {result.top.symbol}, {result.top.score}, {result.crew1.symbol}, {result.crew1.score}, {result.crew2.symbol}, {result.crew2.score}, {result.crew3.symbol}, {result.crew3.score}");
-                                    }
-                                }
-                            }
-                            catch
-                            {
-                                // Do nothing, logging is optional
-                            }
-
-                            return result;
-                        }
-                    }
-                }
+                return SearchImage(downloadResult.image);
             }
-            catch
-            {
-                return null;
-            }
+
+            return null;
         }
     }
 }

@@ -30,6 +30,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using DataCore.Library;
+
 namespace DataCore.Daemon
 {
     public class HttpApi : BackgroundService
@@ -73,20 +75,29 @@ namespace DataCore.Daemon
                 {
                     context.Response.ContentType = "application/json";
                     string url = context.Request.Query["url"];
-                    var results = _searcher.Searcher.SearchUrl(url);
+
                     string beholdResult = "null";
                     string voyResult = "null";
-                    if ((results != null) && results.IsValid(9))
+
+                    DownloadResult downloadResult = ImgDownload.Download(url);
+                    if (downloadResult.image != null)
                     {
-                        beholdResult = results.ToJson();
-                    } else {
-                        // Not a guaranteed behold
-                        beholdResult = (results != null) ? results.ToJson() : "null";
-                        var resultsVoy = _searcher.VoyImage.SearchUrl(url);
-                        voyResult = resultsVoy.valid ? resultsVoy.ToJson() : "null";
+                        var results = _searcher.Searcher.SearchImage(downloadResult.image);
+
+                        if ((results != null) && results.IsValid(6))
+                        {
+                            beholdResult = results.ToJson();
+                        }
+                        else
+                        {
+                            // Not a guaranteed behold
+                            beholdResult = (results != null) ? results.ToJson() : "null";
+                            var resultsVoy = _searcher.VoyImage.SearchMat(downloadResult.image);
+                            voyResult = resultsVoy.valid ? resultsVoy.ToJson() : "null";
+                        }
                     }
 
-                    return context.Response.WriteAsync($"{{\"beholdResult\": {beholdResult}, \"voyResult\": {voyResult}}}");
+                    return context.Response.WriteAsync($"{{\"beholdResult\": {beholdResult}, \"voyResult\": {voyResult}, \"size\": {downloadResult.size}}}");
                 }
                 else if (context.Request.Path.Value == "/api/downloadnow")
                 {
