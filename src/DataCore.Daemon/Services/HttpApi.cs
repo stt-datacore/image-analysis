@@ -40,14 +40,12 @@ namespace DataCore.Daemon
         private readonly IConfiguration _config;
         private IWebHost _webHost;
         private SearcherSingletonService _searcher;
-        private CrewDataSingletonService _crewDataSingletonService;
 
         public HttpApi(IConfiguration config, ILogger<HttpApi> logger, SearcherSingletonService searcher, CrewDataSingletonService crewDataSingletonService)
         {
             _logger = logger;
             _config = config;
             _searcher = searcher;
-            _crewDataSingletonService = crewDataSingletonService;
         }
 
         protected override Task ExecuteAsync(CancellationToken token)
@@ -98,10 +96,6 @@ namespace DataCore.Daemon
                     }
 
                     return context.Response.WriteAsync($"{{\"beholdResult\": {beholdResult}, \"voyResult\": {voyResult}, \"size\": {downloadResult.size}}}");
-                }
-                else if (context.Request.Path.Value == "/api/downloadnow")
-                {
-                    _crewDataSingletonService.BotHelper.DownloadNewData();
                 }
 
                 return context.Response.WriteAsync($"Nothing to see here! ({context.Request.Path.Value})");
