@@ -33,6 +33,20 @@ See instructions [here](https://www.learnopencv.com/install-opencv-4-on-ubuntu-1
 ~/opencv/build$ cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D INSTALL_C_EXAMPLES=ON -D WITH_TBB=ON -D WITH_V4L=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D OPENCV_EXTRA_MODULES_PATH=../../opencv_contrib/modules -D BUILD_EXAMPLES=ON .. -DENABLE_PRECOMPILED_HEADERS=OFF -DOPENCV_ENABLE_NONFREE=ON
 ```
 
+#### [7/5] Building with OpenCV 4.3 from source
+
+git clone https://github.com/shimat/opencvsharp.git
+
+manually edit \opencvsharp\src\OpenCvSharpExtern\xfeatures2d.h and replace xfeatures2d::SIFT with SIFT
+
+mkdir build && cd build
+cmake ..
+make -j8
+sudo make install
+sudo ldconfig
+
+Remove the runtime reference from the csproj [here](https://github.com/TemporalAgent7/datacore-bot/blob/master/src/DataCore.Library/DataCore.Library.csproj#L16).
+
 #### Tesseract OCR
 
 Build and install Leptonica (this particular tag which is compatible with the NuGet library)
