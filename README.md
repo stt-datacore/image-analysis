@@ -34,7 +34,7 @@ See instructions [here](https://www.learnopencv.com/install-opencv-4-on-ubuntu-1
 ```
 
 #### [7/5] Building with OpenCV 4.3 from source
-
+```
 git clone https://github.com/shimat/opencvsharp.git
 
 manually edit \opencvsharp\src\OpenCvSharpExtern\xfeatures2d.h and replace xfeatures2d::SIFT with SIFT
@@ -44,7 +44,7 @@ cmake ..
 make -j8
 sudo make install
 sudo ldconfig
-
+```
 Remove the runtime reference from the csproj [here](https://github.com/TemporalAgent7/datacore-bot/blob/master/src/DataCore.Library/DataCore.Library.csproj#L16).
 
 #### Tesseract OCR
