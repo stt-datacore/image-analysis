@@ -31,7 +31,7 @@ namespace DataCore.CLI
             HelpText = "Don't save the individual source images")]
         public bool NoImages { get; set; }
 
-        [Option('d', "datacorepath", Default = "../../../datacore",
+        [Option('d', "datacorepath", Default = "../../../website",
                     HelpText = "Path to where you checked out the datacore git repo")]
         public string DataCorePath { get; set; }
     }
