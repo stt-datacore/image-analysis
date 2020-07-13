@@ -11,6 +11,9 @@
     "REDDIT_REFRESH_TOKEN": "",
     "REDDIT_SUBREDDIT": ""
   },
-  "HTTP_API_ENABLED": false,
-   "DATACORE_WEB": "https://datacore.app/"
+  "datapath": "/home/stt/website/static/structured",
+  "mainpath": "/home/stt/image-analysis",
+  "DATACORE_WEB": "https://datacore.app/",
+  "HTTP_API_ENABLED": true,
+  "urls": "http://*:5000"
 }

@@ -33,13 +33,15 @@ namespace DataCore.Daemon
             _logger = logger;
             _config = config;
 
-            string mainpath = _config["mainpath"];
-            if (string.IsNullOrEmpty(mainpath))
+            string datapath = _config["datapath"];
+            bool downloadData = false;
+            if (string.IsNullOrEmpty(datapath))
             {
-                mainpath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", "..");
+                downloadData = true;
+                datapath = System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", "..", "data");
             }
 
-            BotHelper = new BotHelper(_config["DATACORE_WEB"], mainpath);
+            BotHelper = new BotHelper(_config["DATACORE_WEB"], datapath, downloadData);
         }
 
         public BotHelper BotHelper { get; }

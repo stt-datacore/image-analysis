@@ -151,7 +151,7 @@ namespace DataCore.CLI
 
         static int PerformSearchCrew(SearchCrew opts)
         {
-            var botHelper = new BotHelper("https://datacore.app/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
+            var botHelper = new BotHelper("https://datacore.app/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", "..", "data"));
             botHelper.ParseData();
             var result = botHelper.SearchCrew(opts.Term);
             if (result.Count == 0)
@@ -187,7 +187,7 @@ namespace DataCore.CLI
             }
             else if (opts.TestType == 1)
             {
-                var botHelper = new BotHelper("https://datacore.app/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
+                var botHelper = new BotHelper("https://datacore.app/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", "..", "data"));
                 botHelper.ParseData();
                 var result = botHelper.BestCrew(opts.TestString, 0);
                 if (result.Count == 0)
@@ -201,7 +201,7 @@ namespace DataCore.CLI
             }
             else if (opts.TestType == 2)
             {
-                var botHelper = new BotHelper("https://datacore.app/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", ".."));
+                var botHelper = new BotHelper("https://datacore.app/", System.IO.Path.Combine(System.IO.Directory.GetCurrentDirectory(), "..", "..", "data"));
                 botHelper.ParseData();
                 var result = botHelper.Gauntlet(opts.TestString.Split(' '));
                 if (!string.IsNullOrEmpty(result.ErrorMessage) || result.Results.Count() == 0)

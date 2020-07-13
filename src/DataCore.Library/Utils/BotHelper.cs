@@ -46,7 +46,8 @@ namespace DataCore.Library
         private QuestData[] _quests;
         private Dilemma[] _dilemmas;
         private readonly object dataLock = new object();
-        private string _mainpath;
+        private string _datapath;
+        private bool _downloadData;
         private string _datacoreURL;
         private string[] _traits;
 
@@ -74,10 +75,11 @@ namespace DataCore.Library
             }
         }
 
-        public BotHelper(string datacoreURL, string mainpath)
+        public BotHelper(string datacoreURL, string datapath, bool downloadData = true)
         {
-            _mainpath = mainpath;
+            _datapath = datapath;
             _datacoreURL = datacoreURL;
+            _downloadData = downloadData;
         }
 
         private void DownloadFile(string fileName)
@@ -86,7 +88,7 @@ namespace DataCore.Library
             using (WebClient client = new WebClient())
             using (Stream data = client.OpenRead(jsonUrl))
             {
-                using (Stream targetfile = File.Create(Path.Combine(_mainpath, "data", fileName)))
+                using (Stream targetfile = File.Create(Path.Combine(_datapath, fileName)))
                 {
                     data.CopyTo(targetfile);
                 }
@@ -95,9 +97,12 @@ namespace DataCore.Library
 
         public void DownloadNewData()
         {
-            DownloadFile("botcrew.json");
-            DownloadFile("quests.json");
-            DownloadFile("items.json");
+            if (_downloadData)
+            {
+                DownloadFile("botcrew.json");
+                DownloadFile("quests.json");
+                DownloadFile("items.json");
+            }
 
             ParseData();
         }
@@ -106,10 +111,10 @@ namespace DataCore.Library
         {
             lock (dataLock)
             {
-                _allcrew = JsonConvert.DeserializeObject<CrewData[]>(File.ReadAllText(Path.Combine(_mainpath, "data", "botcrew.json")));
-                _items = JsonConvert.DeserializeObject<ItemData[]>(File.ReadAllText(Path.Combine(_mainpath, "data", "items.json")));
-                _quests = JsonConvert.DeserializeObject<QuestData[]>(File.ReadAllText(Path.Combine(_mainpath, "data", "quests.json")));
-                _dilemmas = JsonConvert.DeserializeObject<Dilemma[]>(File.ReadAllText(Path.Combine(_mainpath, "data", "dilemmas.json")));
+                _allcrew = JsonConvert.DeserializeObject<CrewData[]>(File.ReadAllText(Path.Combine(_datapath, "botcrew.json")));
+                _items = JsonConvert.DeserializeObject<ItemData[]>(File.ReadAllText(Path.Combine(_datapath, "items.json")));
+                _quests = JsonConvert.DeserializeObject<QuestData[]>(File.ReadAllText(Path.Combine(_datapath, "quests.json")));
+                _dilemmas = JsonConvert.DeserializeObject<Dilemma[]>(File.ReadAllText(Path.Combine(_datapath, "dilemmas.json")));
             }
 
             // TODO: call this only if the data actually changed
